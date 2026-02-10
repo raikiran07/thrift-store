@@ -59,7 +59,7 @@ export default function Home() {
                 <CardContent className="p-4">
                   <h3 className="font-semibold text-lg mb-2">{product.name}</h3>
                   <div className="flex justify-between items-center">
-                    <span className="text-xl font-bold">${product.price}</span>
+                    <span className="text-xl font-bold">₹{product.price}</span>
                     <Button 
                       onClick={(e) => handleAddToCart(e, product)}
                       size="sm"

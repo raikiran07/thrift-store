@@ -247,7 +247,7 @@ export default function ProductDetail() {
         <div className="flex flex-col">
           <h1 className="text-4xl font-bold mb-4">{product.name}</h1>
           
-          <div className="text-3xl font-bold mb-6">${product.price}</div>
+          <div className="text-3xl font-bold mb-6">₹{product.price}</div>
           
           {/* Size Selector */}
           {product.sizes && product.sizes.length > 0 && (
@@ -384,7 +384,7 @@ export default function ProductDetail() {
                     <h3 className="font-semibold text-lg mb-2 line-clamp-1">
                       {relatedProduct.name}
                     </h3>
-                    <p className="text-xl font-bold">${relatedProduct.price}</p>
+                    <p className="text-xl font-bold">₹{relatedProduct.price}</p>
                   </CardContent>
                 </Card>
               </Link>

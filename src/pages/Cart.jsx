@@ -35,7 +35,7 @@ export default function Cart() {
                 />
                 <div className="flex-1">
                   <h3 className="font-semibold text-lg">{item.name}</h3>
-                  <p className="text-gray-600">${item.price}</p>
+                  <p className="text-gray-600">₹{item.price}</p>
                   {/* Show selected variants */}
                   {(item.selectedSize || item.selectedColor) && (
                     <div className="flex gap-3 mt-1 text-sm text-gray-600">
@@ -77,7 +77,7 @@ export default function Cart() {
                   >
                     <Trash2 className="h-4 w-4" />
                   </Button>
-                  <span className="font-bold">${(item.price * item.quantity).toFixed(2)}</span>
+                  <span className="font-bold">₹{(item.price * item.quantity).toFixed(2)}</span>
                 </div>
               </div>
             </CardContent>
@@ -89,7 +89,7 @@ export default function Cart() {
         <CardContent className="p-6">
           <div className="flex justify-between items-center mb-4">
             <span className="text-xl font-semibold">Total</span>
-            <span className="text-2xl font-bold">${total.toFixed(2)}</span>
+            <span className="text-2xl font-bold">₹{total.toFixed(2)}</span>
           </div>
           <Button className="w-full" onClick={() => navigate('/checkout')}>
             Proceed to Checkout

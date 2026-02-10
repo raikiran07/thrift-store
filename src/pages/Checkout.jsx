@@ -29,7 +29,7 @@ export default function Checkout() {
     const orderData = {
       items,
       total,
-      userEmail: user?.email || 'guest@example.com',
+      user_email: user?.email || 'guest@example.com',
       userName: user?.user_metadata?.name || 'Guest User'
     }
 
@@ -39,20 +39,49 @@ export default function Checkout() {
       async (paymentResponse) => {
         // Payment successful - create order in database
         try {
-          await orderService.create({
+          // Create order data without Razorpay fields first
+          const orderToCreate = {
             items,
             total,
-            userEmail: user?.email || 'guest@example.com',
-            status: 'pending',
-            razorpay_payment_id: paymentResponse.razorpay_payment_id,
-            razorpay_order_id: paymentResponse.razorpay_order_id
-          })
+            user_email: user?.email || 'guest@example.com',
+            status: 'pending'
+          }
+          
+          // Only add Razorpay fields if they exist in the response
+          if (paymentResponse.razorpay_payment_id) {
+            orderToCreate.razorpay_payment_id = paymentResponse.razorpay_payment_id
+          }
+          if (paymentResponse.razorpay_order_id) {
+            orderToCreate.razorpay_order_id = paymentResponse.razorpay_order_id
+          }
+
+          await orderService.create(orderToCreate)
 
           alert('Payment successful! Order placed.')
           dispatch(clearCart())
           navigate('/orders')
         } catch (error) {
           console.error('Error creating order:', error)
+          
+          // If error is about missing columns, try without Razorpay fields
+          if (error.message && error.message.includes('razorpay')) {
+            try {
+              await orderService.create({
+                items,
+                total,
+                user_email: user?.email || 'guest@example.com',
+                status: 'pending'
+              })
+              
+              alert('Payment successful! Order placed.')
+              dispatch(clearCart())
+              navigate('/orders')
+              return
+            } catch (retryError) {
+              console.error('Retry error:', retryError)
+            }
+          }
+          
           alert('Payment successful but error saving order. Please contact support with payment ID: ' + paymentResponse.razorpay_payment_id)
         }
       },
@@ -81,13 +110,13 @@ export default function Checkout() {
             {items.map((item) => (
               <div key={item.id} className="flex justify-between">
                 <span>{item.name} x {item.quantity}</span>
-                <span>${(item.price * item.quantity).toFixed(2)}</span>
+                <span>₹{(item.price * item.quantity).toFixed(2)}</span>
               </div>
             ))}
             <div className="border-t pt-2 mt-2">
               <div className="flex justify-between font-bold text-lg">
                 <span>Total</span>
-                <span>${total.toFixed(2)}</span>
+                <span>₹{total.toFixed(2)}</span>
               </div>
             </div>
           </div>

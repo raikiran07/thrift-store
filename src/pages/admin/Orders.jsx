@@ -91,7 +91,7 @@ export default function Orders() {
                     </p>
                   </div>
                   <div className="text-right">
-                    <p className="text-2xl font-bold">${order.total?.toFixed(2)}</p>
+                    <p className="text-2xl font-bold">₹{order.total?.toFixed(2)}</p>
                     <select
                       value={order.status}
                       onChange={(e) => handleStatusUpdate(order.id, e.target.value)}
@@ -113,7 +113,7 @@ export default function Orders() {
                       <div key={idx} className="flex justify-between text-sm bg-gray-50 p-3 rounded">
                         <span className="font-medium">{item.name}</span>
                         <span className="text-gray-600">
-                          {item.quantity} × ${item.price} = ${(item.price * item.quantity).toFixed(2)}
+                          {item.quantity} × ₹{item.price} = ₹{(item.price * item.quantity).toFixed(2)}
                         </span>
                       </div>
                     ))}

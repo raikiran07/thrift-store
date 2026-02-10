@@ -113,7 +113,7 @@ export default function Products() {
                   )}
                   <div className="flex-1">
                     <h3 className="font-semibold text-lg">{product.name}</h3>
-                    <p className="text-xl font-bold mt-1">${product.price}</p>
+                    <p className="text-xl font-bold mt-1">₹{product.price}</p>
                     <p className="text-xs text-gray-500 mt-2">
                       Added {new Date(product.created_at).toLocaleDateString()}
                     </p>

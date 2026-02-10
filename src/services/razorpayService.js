@@ -7,7 +7,7 @@ export const razorpayService = {
       currency: 'INR',
       name: 'Thrift Shop',
       description: 'Order Payment',
-      image: '/logo.png', // Optional: Add your logo
+      // image: '/logo.png', // Removed to avoid CORS issues
       handler: function (response) {
         // Payment successful
         onSuccess({
@@ -18,7 +18,7 @@ export const razorpayService = {
       },
       prefill: {
         name: orderData.userName || '',
-        email: orderData.userEmail || '',
+        email: orderData.user_email || '',
         contact: orderData.userPhone || ''
       },
       notes: {

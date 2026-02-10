@@ -144,7 +144,7 @@ export default function Orders() {
                     <div className="text-right">
                       <p className="text-sm text-gray-600">Total Amount</p>
                       <p className="text-2xl font-bold">
-                        ${order.total?.toFixed(2)}
+                        ₹{order.total?.toFixed(2)}
                       </p>
                     </div>
                   </div>
@@ -179,7 +179,7 @@ export default function Orders() {
                           </div>
                           <div className="text-right">
                             <p className="font-semibold">
-                              ${(item.price * item.quantity).toFixed(2)}
+                              ₹{(item.price * item.quantity).toFixed(2)}
                             </p>
                           </div>
                         </div>
