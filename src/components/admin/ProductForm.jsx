@@ -13,7 +13,8 @@ export default function ProductForm({ product, onClose }) {
     image: product?.image || '',
     description: product?.description || '',
     sizes: product?.sizes || [],
-    colors: product?.colors || []
+    colors: product?.colors || [],
+    gallery_images: product?.gallery_images || []
   })
   const [imageFile, setImageFile] = useState(null)
   const [imageSource, setImageSource] = useState('upload')
@@ -23,6 +24,9 @@ export default function ProductForm({ product, onClose }) {
   const [newSize, setNewSize] = useState('')
   const [newColorName, setNewColorName] = useState('')
   const [newColorHex, setNewColorHex] = useState('#000000')
+  
+  // Gallery image input
+  const [newGalleryImage, setNewGalleryImage] = useState('')
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -67,6 +71,23 @@ export default function ProductForm({ product, onClose }) {
 
   const removeColor = (colorName) => {
     setFormData({ ...formData, colors: formData.colors.filter(c => c.name !== colorName) })
+  }
+
+  const addGalleryImage = () => {
+    if (newGalleryImage && !formData.gallery_images.includes(newGalleryImage)) {
+      setFormData({ 
+        ...formData, 
+        gallery_images: [...formData.gallery_images, newGalleryImage] 
+      })
+      setNewGalleryImage('')
+    }
+  }
+
+  const removeGalleryImage = (imageUrl) => {
+    setFormData({ 
+      ...formData, 
+      gallery_images: formData.gallery_images.filter(img => img !== imageUrl) 
+    })
   }
 
   return (
@@ -253,6 +274,49 @@ export default function ProductForm({ product, onClose }) {
                   </div>
                 )}
               </>
+            )}
+          </div>
+
+          {/* Gallery Images (Optional) */}
+          <div className="space-y-2">
+            <Label>Additional Images (Optional)</Label>
+            <p className="text-xs text-gray-500 mb-2">
+              Add multiple images to show different angles of the product
+            </p>
+            <div className="flex gap-2">
+              <Input
+                value={newGalleryImage}
+                onChange={(e) => setNewGalleryImage(e.target.value)}
+                placeholder="https://example.com/image.jpg"
+                onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addGalleryImage())}
+              />
+              <Button type="button" onClick={addGalleryImage} size="sm">
+                <Plus className="h-4 w-4" />
+              </Button>
+            </div>
+            
+            {formData.gallery_images.length > 0 && (
+              <div className="grid grid-cols-4 gap-2 mt-3">
+                {formData.gallery_images.map((imageUrl, index) => (
+                  <div key={index} className="relative group">
+                    <img 
+                      src={imageUrl} 
+                      alt={`Gallery ${index + 1}`}
+                      className="w-full h-24 object-cover rounded border"
+                      onError={(e) => {
+                        e.target.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="100" height="100"%3E%3Crect fill="%23ddd" width="100" height="100"/%3E%3Ctext x="50%25" y="50%25" text-anchor="middle" dy=".3em" fill="%23999"%3EError%3C/text%3E%3C/svg%3E'
+                      }}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => removeGalleryImage(imageUrl)}
+                      className="absolute top-1 right-1 bg-red-600 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  </div>
+                ))}
+              </div>
             )}
           </div>
 

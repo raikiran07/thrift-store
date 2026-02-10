@@ -21,6 +21,9 @@ export default function ProductDetail() {
   // Selected variants
   const [selectedSize, setSelectedSize] = useState('')
   const [selectedColor, setSelectedColor] = useState(null)
+  
+  // Gallery state
+  const [selectedImage, setSelectedImage] = useState(null)
 
   useEffect(() => {
     loadProduct()
@@ -36,7 +39,32 @@ export default function ProductDetail() {
         return
       }
       
+      // Parse colors if they're strings (for backward compatibility)
+      if (currentProduct.colors && currentProduct.colors.length > 0) {
+        currentProduct.colors = currentProduct.colors.map(color => {
+          // If color is already an object with name and hex, use it
+          if (typeof color === 'object' && color.name && color.hex) {
+            return color
+          }
+          // If color is a string, convert it to object format
+          if (typeof color === 'string') {
+            return {
+              name: color,
+              hex: getColorHex(color)
+            }
+          }
+          return color
+        })
+      }
+      
       setProduct(currentProduct)
+      
+      // Debug: Check if gallery images exist
+      console.log('Product loaded:', currentProduct.name)
+      console.log('Gallery images:', currentProduct.gallery_images)
+      
+      // Set default image (main product image)
+      setSelectedImage(currentProduct.image)
       
       // Set default selections
       if (currentProduct.sizes && currentProduct.sizes.length > 0) {
@@ -57,6 +85,29 @@ export default function ProductDetail() {
     } finally {
       setLoading(false)
     }
+  }
+
+  // Helper function to get hex color from color name
+  const getColorHex = (colorName) => {
+    const colorMap = {
+      'black': '#000000',
+      'white': '#ffffff',
+      'red': '#dc2626',
+      'blue': '#2563eb',
+      'green': '#16a34a',
+      'yellow': '#fbbf24',
+      'pink': '#ec4899',
+      'purple': '#9333ea',
+      'gray': '#6b7280',
+      'brown': '#92400e',
+      'navy': '#1e3a8a',
+      'beige': '#d6d3d1',
+      'tan': '#d97706',
+      'olive': '#65a30d',
+      'burgundy': '#7f1d1d',
+      'cream': '#fef3c7'
+    }
+    return colorMap[colorName.toLowerCase()] || '#000000'
   }
 
   const handleAddToCart = () => {
@@ -110,17 +161,84 @@ export default function ProductDetail() {
       </Button>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-16">
-        {/* Product Image */}
-        <div className="aspect-square rounded-lg overflow-hidden bg-gray-100">
-          {product.image ? (
-            <img
-              src={product.image}
-              alt={product.name}
-              className="w-full h-full object-cover"
-            />
+        {/* Product Images */}
+        <div>
+          {/* Check if product has gallery images */}
+          {product.gallery_images && product.gallery_images.length > 0 ? (
+            <div className="flex gap-4">
+              {/* Thumbnail Gallery */}
+              <div className="flex flex-col gap-2 w-20">
+                {/* Main image thumbnail */}
+                <button
+                  onClick={() => setSelectedImage(product.image)}
+                  className={`w-20 h-20 rounded-lg overflow-hidden border-2 transition-all ${
+                    selectedImage === product.image
+                      ? 'border-black'
+                      : 'border-gray-200 hover:border-gray-300'
+                  }`}
+                >
+                  {product.image ? (
+                    <img
+                      src={product.image}
+                      alt="Main"
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full bg-gray-100 flex items-center justify-center">
+                      <Package className="h-6 w-6 text-gray-400" />
+                    </div>
+                  )}
+                </button>
+                
+                {/* Gallery thumbnails */}
+                {product.gallery_images.map((imageUrl, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setSelectedImage(imageUrl)}
+                    className={`w-20 h-20 rounded-lg overflow-hidden border-2 transition-all ${
+                      selectedImage === imageUrl
+                        ? 'border-black'
+                        : 'border-gray-200 hover:border-gray-300'
+                    }`}
+                  >
+                    <img
+                      src={imageUrl}
+                      alt={`View ${index + 2}`}
+                      className="w-full h-full object-cover"
+                    />
+                  </button>
+                ))}
+              </div>
+              
+              {/* Main Image Display */}
+              <div className="flex-1 aspect-square rounded-lg overflow-hidden bg-gray-100">
+                {selectedImage || product.image ? (
+                  <img
+                    src={selectedImage || product.image}
+                    alt={product.name}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center">
+                    <Package className="h-24 w-24 text-gray-400" />
+                  </div>
+                )}
+              </div>
+            </div>
           ) : (
-            <div className="w-full h-full flex items-center justify-center">
-              <Package className="h-24 w-24 text-gray-400" />
+            /* Single image display when no gallery */
+            <div className="aspect-square rounded-lg overflow-hidden bg-gray-100">
+              {product.image ? (
+                <img
+                  src={product.image}
+                  alt={product.name}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center">
+                  <Package className="h-24 w-24 text-gray-400" />
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -161,23 +279,36 @@ export default function ProductDetail() {
                 {selectedColor && <span className="text-gray-600 font-normal ml-2">- {selectedColor.name}</span>}
               </h3>
               <div className="flex flex-wrap gap-3">
-                {product.colors.map((color) => (
-                  <button
-                    key={color.name}
-                    onClick={() => setSelectedColor(color)}
-                    className={`relative w-10 h-10 rounded-full border-2 transition-all ${
-                      selectedColor?.name === color.name
-                        ? 'border-black scale-110'
-                        : 'border-gray-300 hover:border-gray-400'
-                    }`}
-                    style={{ backgroundColor: color.hex }}
-                    title={color.name}
-                  >
-                    {selectedColor?.name === color.name && (
-                      <Check className="absolute inset-0 m-auto h-5 w-5 text-white drop-shadow-lg" />
-                    )}
-                  </button>
-                ))}
+                {product.colors.map((color) => {
+                  const isSelected = selectedColor?.name === color.name
+                  const isLightColor = color.hex && (
+                    color.hex.toLowerCase() === '#ffffff' || 
+                    color.hex.toLowerCase() === '#fafaf9' ||
+                    color.hex.toLowerCase() === '#fef3c7'
+                  )
+                  
+                  return (
+                    <button
+                      key={color.name}
+                      onClick={() => setSelectedColor(color)}
+                      className={`relative w-12 h-12 rounded-full transition-all ${
+                        isSelected
+                          ? 'ring-2 ring-black ring-offset-2 scale-110'
+                          : 'ring-1 ring-gray-300 hover:ring-gray-400'
+                      }`}
+                      style={{ backgroundColor: color.hex || '#000000' }}
+                      title={color.name}
+                    >
+                      {isSelected && (
+                        <Check 
+                          className={`absolute inset-0 m-auto h-5 w-5 drop-shadow-lg ${
+                            isLightColor ? 'text-black' : 'text-white'
+                          }`} 
+                        />
+                      )}
+                    </button>
+                  )
+                })}
               </div>
             </div>
           )}
